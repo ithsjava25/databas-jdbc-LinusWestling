@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class Main {
 
@@ -30,7 +31,40 @@ public class Main {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        //Todo: Starting point for your code
+        /*          THE WORKFLOW
+         * Implementation of CLI logic
+         *       Recieve Username
+         *       Recieve Password
+         *       Options:
+         *           1 - List moon missions (prints spacecraft names from `moon_mission`).
+         *           2 - Get a moon mission by mission_id (prints details for that mission).
+         *           3 - Count missions for a given year (prompts: year; prints the number of missions launched that year).
+         *           4 - Create an account (prompts: first name, last name, ssn, password; prints confirmation).
+         *           5 - Update an account password (prompts: user_id, new password; prints confirmation).
+         *           6 - Delete an account (prompts: user_id; prints confirmation).
+         *           0 - Exit
+         * Prompt user for Username
+         * Store Username in String
+         * Prompt user for Password
+         * Store Password in String
+         * checkIfValidAccount(Username, Password) return boolean
+         * if checkFail -> Invalid Username or Password, please try again, or exit with typing: 0
+         * else
+         * getOptions()
+         */
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter your Username: ");
+        String username = sc.nextLine();
+        System.out.print("Enter your password: ");
+        String password = sc.nextLine();
+
+//        checkIfValidAccount(Username, Password) return boolean
+//           if checkFail -> Invalid Username or Password, please try again, or exit with typing: 0
+
+        System.out.println("Welcome / Välkommen: " + username);
+        getOptions();
     }
 
     /**
@@ -59,4 +93,22 @@ public class Main {
         }
         return (v == null || v.trim().isEmpty()) ? null : v.trim();
     }
+
+
+    public void getOptions() {
+        System.out.println(
+                """
+                        You can choose from the following options:
+                        1 - List moon missions (prints spacecraft names from `moon_mission`).
+                        2 - Get a moon mission by mission_id (prints details for that mission).
+                        3 - Count missions for a given year (prompts: year; prints the number of missions launched that year).
+                        4 - Create an account (prompts: first name, last name, ssn, password; prints confirmation).
+                        5 - Update an account password (prompts: user_id, new password; prints confirmation).
+                        6 - Delete an account (prompts: user_id; prints confirmation).
+                        0 - Exit.
+                """
+            );
+    }
+
+
 }
