@@ -34,5 +34,34 @@ public class MoonMission {
         return outcome;
     }
 
-    // SETTERS (if needed later)
+    // SETTERS
+
+
+    public void setMissionId(int missionId) {
+        this.missionId = missionId;
+    }
+
+    public void setSpacecraft(String spacecraft) {
+        this.spacecraft = spacecraft;
+    }
+
+    public void setLaunchDate(LocalDate launchDate) {
+        this.launchDate = launchDate;
+    }
+
+    public void setCarrierRocket(String carrierRocket) {
+        this.carrierRocket = carrierRocket;
+    }
+
+    public void setOutcome(String outcome) {
+        this.outcome = outcome;
+    }
+
+    public void setMissionType(String missionType) {
+        this.missionType = missionType;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
 }
