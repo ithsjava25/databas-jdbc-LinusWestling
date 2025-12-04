@@ -8,6 +8,7 @@ public class SimpleDriverManagerDataSource {
     private final String jdbcUrl;
     private final String dbUser;
     private final String dbPass;
+    private Connection connection;
 
     // Resolve DB settings with precedence: System properties -> Environment variable
     public SimpleDriverManagerDataSource(){
@@ -22,7 +23,10 @@ public class SimpleDriverManagerDataSource {
     }
 
     public Connection getConnection() throws SQLException{
-        return DriverManager.getConnection(jdbcUrl, dbUser, dbPass);
+        if (connection == null){
+            connection = DriverManager.getConnection(jdbcUrl, dbUser, dbPass);
+        }
+        return connection;
     }
 
     /**

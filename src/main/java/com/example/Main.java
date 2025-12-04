@@ -1,5 +1,8 @@
 package com.example;
 
+import com.example.jdbc.JdbcAccountRepository;
+import com.example.jdbc.JdbcMoonMissionRepository;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -7,6 +10,11 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
+
+    private SimpleDriverManagerDataSource dataSource;
+    private JdbcAccountRepository accountRepo;
+    private JdbcMoonMissionRepository missionRepo;
+    private Scanner sc;
 
     static void main(String[] args) {
         if (isDevMode(args)) {
@@ -16,47 +24,34 @@ public class Main {
     }
 
     public void run() {
-        SimpleDriverManagerDataSource ds = new SimpleDriverManagerDataSource();
-        try (Connection connection = ds.getConnection()) {
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        /*          THE WORKFLOW
-         * Implementation of CLI logic
-         *       Recieve Username
-         *       Recieve Password
-         *       Options:
-         *           1 - List moon missions (prints spacecraft names from `moon_mission`).
-         *           2 - Get a moon mission by mission_id (prints details for that mission).
-         *           3 - Count missions for a given year (prompts: year; prints the number of missions launched that year).
-         *           4 - Create an account (prompts: first name, last name, ssn, password; prints confirmation).
-         *           5 - Update an account password (prompts: user_id, new password; prints confirmation).
-         *           6 - Delete an account (prompts: user_id; prints confirmation).
-         *           0 - Exit
-         * Prompt user for Username
-         * Store Username in String
-         * Prompt user for Password
-         * Store Password in String
-         * checkIfValidAccount(Username, Password) return boolean
-         * if checkFail -> Invalid Username or Password, please try again, or exit with typing: 0
-         * else
-         * getOptions()
-         */
 
-        // TODO: Parse "year" into localTimeDate for option 3
 
-        Scanner sc = new Scanner(System.in);
 
-        System.out.print("Enter your Username: ");
-        String username = sc.nextLine();
-        System.out.print("Enter your password: ");
-        String password = sc.nextLine();
+        dataSource = new SimpleDriverManagerDataSource();
+        accountRepo = new JdbcAccountRepository(dataSource);
+        missionRepo = new JdbcMoonMissionRepository(dataSource);
+        sc = new Scanner(System.in);
 
-//        checkIfValidAccount(Username, Password) return boolean
-//           if checkFail -> Invalid Username or Password, please try again, or exit with typing: 0
 
-        System.out.println("Welcome / Välkommen: " + username);
-        getOptions();
+
+
+        int choice;
+        do {
+            System.out.print("Enter your Username: ");
+            String username = sc.nextLine();
+            System.out.print("Enter your password: ");
+            String password = sc.nextLine();
+
+            if (accountRepo.validateCredentials(username, password)) {
+                System.out.println("Welcome / Välkommen: " + username);
+                getOptions();
+            } else {
+                System.out.println("Username or password was Incorrect. Press 0 to exit");
+            }
+
+            choice = sc.nextInt();
+            options(choice);
+        } while (choice != 0);
     }
 
     /**
@@ -74,9 +69,6 @@ public class Main {
         return Arrays.asList(args).contains("--dev"); //Argument --dev
     }
 
-
-
-
     public void getOptions() {
         System.out.println(
                 """
@@ -88,9 +80,93 @@ public class Main {
                         5 - Update an account password (prompts: user_id, new password; prints confirmation).
                         6 - Delete an account (prompts: user_id; prints confirmation).
                         0 - Exit.
+                        By pressing either of the numbers listed.
                 """
             );
     }
 
+    public void options(int choice) {
 
+        switch (choice) {
+
+            case 1: missionRepo.
+                    listMissions().
+                    forEach(System.out::println);
+                break;
+
+            case 2:
+                System.out.print("Enter a mission ID you want to search for: ");
+                int missionId = sc.nextInt();
+                sc.nextLine();
+                MoonMission mission = missionRepo.getMissionById(missionId);
+                if (mission != null) {
+                    System.out.printf(
+                            "Mission ID: %d%nSpacecraft: %s%nLaunch Date: %s%nCarrier Rocket: %s%nOutcome: %s%nMission Type: %s%nOperator: %s%n",
+                            mission.getMissionId(),
+                            mission.getSpacecraft(),
+                            mission.getLaunchDate(),
+                            mission.getCarrierRocket(),
+                            mission.getOutcome(),
+                            mission.getMissionType(),
+                            mission.getOperator()
+                    );
+                } else {
+                    System.out.println("No mission found.");
+                }
+                break;
+
+            case 3:
+                System.out.print("Enter the year you wish to see the number of missions: ");
+                int year = sc.nextInt();
+                sc.nextLine();
+                int numOfMissions = missionRepo.countMissionsByYear(year);
+                System.out.println("There were: " + numOfMissions + " year " + year);
+                break;
+
+            case 4:
+                System.out.println("Enter your first name: ");
+                String firstName = sc.nextLine();
+                System.out.println("Enter your last name: ");
+                String lastName = sc.nextLine();
+                System.out.println("Enter your ssn (social security number): ");
+                String ssn = sc.nextLine();
+                System.out.println("Enter your password: ");
+                String password = sc.nextLine();
+
+                if (accountRepo.createAccount(firstName, lastName, ssn, password)) {
+                    System.out.println("Your account was successfuly created");
+                } else {
+                    System.out.println("Something went wrong during the creation of your account");
+                }
+                break;
+
+            case 5:
+                System.out.println("Enter the userId of the account you would like to update your password for: ");
+                int userId = sc.nextInt();
+                System.out.println("Enter your new password");
+                String newPassword = sc.nextLine();
+
+                if (accountRepo.updatePassword(userId, newPassword)) {
+                    System.out.println("Your password has been updated!");
+                } else {
+                    System.out.println("Something went wrong during password update.");
+                }
+                break;
+
+            case 6:
+                System.out.println("Enter userID of the account u want deleted: ");
+                int userIdDelete = sc.nextInt();
+
+                boolean isDeleted = accountRepo.deleteAccount(userIdDelete);
+                System.out.println(isDeleted ? "You account was successfully deleted!" : "Something went wrong deleting your account.");
+                break;
+
+            case 0:
+                System.out.println("Exiting the program.");
+                break;
+
+            default:
+                System.out.println("Invalid choice");
+        }
+    }
 }

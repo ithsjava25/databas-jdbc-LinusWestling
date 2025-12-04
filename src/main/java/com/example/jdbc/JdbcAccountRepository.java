@@ -11,7 +11,11 @@ import java.sql.SQLException;
 
 public class JdbcAccountRepository implements AccountRepository {
 
-    SimpleDriverManagerDataSource ds = new SimpleDriverManagerDataSource();
+    private final SimpleDriverManagerDataSource ds;
+
+    public JdbcAccountRepository(SimpleDriverManagerDataSource ds) {
+        this.ds = ds;
+    }
 
     @Override
     public Boolean createAccount(String firstName, String lastName, String ssn, String password) {

@@ -13,7 +13,11 @@ import java.util.List;
 
 public class JdbcMoonMissionRepository implements MoonMissionRepository {
 
-    SimpleDriverManagerDataSource ds = new SimpleDriverManagerDataSource();
+    private final SimpleDriverManagerDataSource ds;
+
+    public JdbcMoonMissionRepository(SimpleDriverManagerDataSource ds) {
+        this.ds = ds;
+    }
 
     @Override
     public List<String> listMissions() {
@@ -27,7 +31,7 @@ public class JdbcMoonMissionRepository implements MoonMissionRepository {
             List<String> result = new ArrayList<>();
 
             while (rs.next()){
-                result.add(rs.toString());
+                result.add(rs.getString("spacecraft"));
             }
 
             return result;
@@ -35,7 +39,6 @@ public class JdbcMoonMissionRepository implements MoonMissionRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
