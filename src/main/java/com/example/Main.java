@@ -4,7 +4,6 @@ import com.example.jdbc.JdbcAccountRepository;
 import com.example.jdbc.JdbcMoonMissionRepository;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
@@ -132,22 +131,19 @@ public class Main {
                 System.out.print("Enter a mission ID you want to search for: ");
                 int missionId = sc.nextInt();
                 sc.nextLine();
-                Optional<MoonMission> missionOpt = missionRepo.getMissionById(missionId);
-                if (missionOpt.isPresent()) {
-                    MoonMission mission = missionOpt.get();
-                    System.out.printf(
-                            "Mission ID: %d%nSpacecraft: %s%nLaunch Date: %s%nCarrier Rocket: %s%nOutcome: %s%nMission Type: %s%nOperator: %s%n",
-                            mission.getMissionId(),
-                            mission.getSpacecraft(),
-                            mission.getLaunchDate(),
-                            mission.getCarrierRocket(),
-                            mission.getOutcome(),
-                            mission.getMissionType(),
-                            mission.getOperator()
-                    );
-                } else {
-                    System.out.println("No mission found.");
-                }
+                missionRepo.getMissionById(missionId).ifPresentOrElse(
+                        mission -> System.out.printf(
+                                "Mission ID: %d%nSpacecraft: %s%nLaunch Date: %s%nCarrier Rocket: %s%nOutcome: %s%nMission Type: %s%nOperator: %s%n",
+                                mission.getMissionId(),
+                                mission.getSpacecraft(),
+                                mission.getLaunchDate(),
+                                mission.getCarrierRocket(),
+                                mission.getOutcome(),
+                                mission.getMissionType(),
+                                mission.getOperator()
+                        ),
+                        () -> System.out.println("No mission found.")
+                );
                 break;
 
             case 3:
