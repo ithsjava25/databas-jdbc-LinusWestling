@@ -56,7 +56,6 @@ public class Main {
             }
         }
 
-
         // Once authenticated, show menu until user exits
         int choice;
         do {

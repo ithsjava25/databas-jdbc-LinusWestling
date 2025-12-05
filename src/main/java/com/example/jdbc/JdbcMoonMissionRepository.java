@@ -21,36 +21,32 @@ public class JdbcMoonMissionRepository implements MoonMissionRepository {
 
     @Override
     public List<String> listMissions() {
+        String sql = "SELECT spacecraft FROM moon_mission";
+        List<String> result = new ArrayList<>();
 
-        try (Connection connection = ds.getConnection()) {
+        try (Connection connection = ds.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-            String sql = "select spacecraft from moon_mission;";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
-            List<String> result = new ArrayList<>();
-
-            while (rs.next()){
+            while (rs.next()) {
                 result.add(rs.getString("spacecraft"));
             }
-
             return result;
-
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error listing missions", e);
         }
     }
 
     @Override
     public MoonMission getMissionById(int missionId) {
-        String sql = "select * from moon_mission where mission_id = ?";
+        String sql = "SELECT * FROM moon_mission WHERE mission_id = ?";
 
         try (Connection connection = ds.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql);){
+             PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setInt(1, missionId);
 
-            try (ResultSet rs = ps.executeQuery()){
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     MoonMission mission = new MoonMission();
                     mission.setMissionId(rs.getInt("mission_id"));
@@ -64,29 +60,27 @@ public class JdbcMoonMissionRepository implements MoonMissionRepository {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error fetching mission by ID", e);
         }
         return null;
     }
 
     @Override
     public int countMissionsByYear(int year) {
+        String sql = "SELECT COUNT(*) AS mission_count FROM moon_mission WHERE YEAR(launch_date) = ?";
 
-        try (Connection connection = ds.getConnection()){
-
-            String sql = "select count(*) from moon_mission as mission_count where year(launch_date) = ?";
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection connection = ds.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setInt(1, year);
 
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()){
-                return rs.getInt("mission_count");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("mission_count");
+                }
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error counting missions by year", e);
         }
         return 0;
     }
