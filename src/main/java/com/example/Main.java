@@ -129,8 +129,15 @@ public class Main {
 
             case 2:
                 System.out.print("Enter a mission ID you want to search for: ");
-                int missionId = sc.nextInt();
-                sc.nextLine();
+                String missionIdStr = sc.nextLine();
+                int missionId;
+                try{
+                    missionId = Integer.parseInt(missionIdStr);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid mission ID");
+                    break;
+                }
+
                 missionRepo.getMissionById(missionId).ifPresentOrElse(
                         mission -> System.out.printf(
                                 "Mission ID: %d%nSpacecraft: %s%nLaunch Date: %s%nCarrier Rocket: %s%nOutcome: %s%nMission Type: %s%nOperator: %s%n",
